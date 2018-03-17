@@ -1,0 +1,51 @@
+# version: '2'
+# services:
+#   wordpress:
+#     image: wordpress:latest
+#     ports:
+#         - '9000:80'
+#     depends_on:
+#         - db
+#     environment:
+#         WORDPRESS_DB_HOST: 'db:3306'
+#     env_file: .env
+#   db:
+#     image: mysql:latest
+#     env_file: .env
+#     volumes:
+#         - db-data:/var/lib/mysql
+
+version: "2"
+services:
+
+#    applications:
+#        image: tianon/true
+#        volumes:
+#          - ${TEMPLATE}:/var/www/html/wp-content/themes
+#          - ${APPLICATION}:/var/www/html
+    wordpress:
+        image: wordpress:latest
+        build: ./wordpress
+        ports:
+            - "80:80"
+        depends_on:
+            - db
+        environment:
+            WORDPRESS_DB_HOST: "db:3306"
+        env_file: .env
+        volumes:
+            - ${TEMPLATE_DIR}${TEMPLATE_NAME}:/var/www/html/wp-content/themes/${TEMPLATE_NAME}
+#        volumes_from:
+#            - applications
+    db:
+        image: mysql:latest
+        env_file: .env
+        volumes:
+            - db-data:/var/lib/mysql
+            - ./db-data/${DB_SEED_FILE}:/docker-entrypoint-initdb.d/install_wordpress.sql
+
+# databaseのように永続的なストレージが欲しい場合に必要な設定
+# https://docs.docker.com/compose/compose-file/#volume-configuration-reference
+volumes:
+    db-data:
+        driver: local
